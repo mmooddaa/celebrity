@@ -22,6 +22,12 @@ words <- data.frame(id = 1:length(words),
 
 currentWord <- 0
 
+scoreData <- data.frame(round = rep(1:10, 2),
+                        team = c(rep("A", 10), rep("B", 10)),
+                        score = round(rnorm(20, 5, 1), 0))
+scoreData$score[scoreData$team == "A"] <- cumsum(scoreData$score[scoreData$team == "A"])
+scoreData$score[scoreData$team == "B"] <- cumsum(scoreData$score[scoreData$team == "B"])
+
 ui <- fluidPage(
   titlePanel("WELCOME TO MALLEN'S HOUSE OF FUN!"),
   tabsetPanel(
