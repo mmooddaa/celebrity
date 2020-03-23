@@ -74,7 +74,7 @@ server <- function(input, output) {
       currentWord <<- 0
     } else {
       # Randomly select word from those left
-      wordsLeft <- words$id[words$complete == 0]
+      wordsLeft <- as.character(words$id[words$complete == 0])
       currentWord <<- sample(wordsLeft, 1)
       word <- words$words[words$id == currentWord]
       output$word <- renderText(word)
@@ -83,7 +83,7 @@ server <- function(input, output) {
   
   # PLAYER START
   observeEvent(input$skipWord, {
-    wordsLeft <- words$id[words$complete == 0]
+    wordsLeft <- as.character(words$id[words$complete == 0])
     currentWord <<- sample(wordsLeft, 1)
     word <- words$words[words$id == currentWord]
     output$word <- renderText(word)
@@ -91,7 +91,7 @@ server <- function(input, output) {
   
   # SKIP WORD
   observeEvent(input$skipWord2, {
-    wordsLeft <- words$id[words$complete == 0]
+    wordsLeft <- as.character(words$id[words$complete == 0])
     currentWord <<- sample(wordsLeft, 1)
     word <- words$words[words$id == currentWord]
     output$word <- renderText(word)
