@@ -15,7 +15,8 @@ score$team <- ifelse(score$num %% 2 != 0 , "A", "B")
 
 # Create list of words
 words <- unname(unlist(words[1:nrow(words),2:6]))
-words <- data.frame(words = words,
+words <- data.frame(id = 1:length(words),
+                    words = words,
                     complete = 0,
                     stringsAsFactors = FALSE)
 
@@ -73,25 +74,26 @@ server <- function(input, output) {
       currentWord <<- 0
     } else {
       # Randomly select word from those left
-      wordsLeft <- words$word[words$complete == 0]
-      word <- sample(wordsLeft, 1)
-      currentWord <<- match(word, words$word)
+      wordsLeft <- words$id[words$complete == 0]
+      currentWord <<- sample(wordsLeft, 1)
+      word <- words$words[words$id == currentWord]
       output$word <- renderText(word)
     }
   })
   
   # SKIP ACTION
   observeEvent(input$skipWord, {
-    wordsLeft <- words$word[words$complete == 0]
-    word <- sample(wordsLeft, 1)
-    currentWord <<- match(word, words$word)
+    wordsLeft <- words$id[words$complete == 0]
+    currentWord <<- sample(wordsLeft, 1)
+    word <- words$words[words$id == currentWord]
     output$word <- renderText(word)
   })
   
+  # PLAYER START
   observeEvent(input$skipWord2, {
-    wordsLeft <- words$word[words$complete == 0]
-    word <- sample(wordsLeft, 1)
-    currentWord <<- match(word, words$word)
+    wordsLeft <- words$id[words$complete == 0]
+    currentWord <<- sample(wordsLeft, 1)
+    word <- words$words[words$id == currentWord]
     output$word <- renderText(word)
   })
   
