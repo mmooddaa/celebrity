@@ -58,7 +58,7 @@ server <- function(input, output) {
   observeEvent(input$nextWord, {
     # Register that the current word was succesfully guessed
     if (currentWord != 0) {
-      words$complete[currentWord] <<- 1
+      words$complete[words$id == currentWord] <<- 1L
       # Record player score
       score$score[score$player == input$currentPlayer] <<- 
         score$score[score$player == input$currentPlayer] + 1L
@@ -81,7 +81,7 @@ server <- function(input, output) {
     }
   })
   
-  # SKIP ACTION
+  # PLAYER START
   observeEvent(input$skipWord, {
     wordsLeft <- words$id[words$complete == 0]
     currentWord <<- sample(wordsLeft, 1)
@@ -89,7 +89,7 @@ server <- function(input, output) {
     output$word <- renderText(word)
   })
   
-  # PLAYER START
+  # SKIP WORD
   observeEvent(input$skipWord2, {
     wordsLeft <- words$id[words$complete == 0]
     currentWord <<- sample(wordsLeft, 1)
