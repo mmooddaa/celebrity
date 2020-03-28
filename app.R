@@ -3,15 +3,17 @@ library(shiny)
 url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyoEdooMQN5RU2JwzChzDdfJrqwGGBmcWoVGhBAcsnFclSvDlDrQWNoH2XZBE0f3919QBGX5mU_Y8-/pub?output=csv"
 
 # Declare global dfs and variables
-names <- character()
-score <- data.frame()
 words <- data.frame()
+score <- data.frame()
+names <- character()
 currentWord <- 0
 
-# Function to create a new game based on inputed Google Form URL
-createGame <- function (url) {
+# Functions to create a new game based on inputed Google Form URL
+fetchData <- function (url) {
   words <- read.csv(url,stringsAsFactors = FALSE)
-  
+}
+
+createTeams <- function (words) {
   # Randomize teams
   # Set seed based on time
   set.seed(as.integer(paste0(strsplit(format(Sys.time(), "%X"), ":")[[1]], collapse = "")))
@@ -24,15 +26,22 @@ createGame <- function (url) {
                       score = 0L,
                       stringsAsFactors = FALSE)
   score$team <- ifelse(score$num %% 2 != 0 , "A", "B")
-  
+  return (score)
+}
+
+createNamelist <- function(score) {
+  names <- score$player
+  names(names) <- names
+  return (names)
+}
+
+createWordlist <- function (words) {
   # Create list of words
   words <- unname(unlist(words[1:nrow(words),2:6]))
   words <- data.frame(id = 1:length(words),
                       words = words,
                       complete = 0,
                       stringsAsFactors = FALSE)
-  
-  currentWord <- 0
 }
 
 ui <- fluidPage(
@@ -67,7 +76,9 @@ ui <- fluidPage(
     # Fucntionality to add:
     #   - Add Google Form URL to input new words and names
     #   - Reset game (keep current word list, reset score)
-    tabPanel("Configure Game", "Test") # end tabPanel3 
+    tabPanel("Configure Game",
+             textInput("url", "Enter Google Form URL (CSV):"),
+             actionButton("configureGame", "Submit")) # end tabPanel3 
   )
 )
 
@@ -127,6 +138,14 @@ server <- function(input, output) {
   
   output$teamB_total <- renderText({
     paste("Team B:", sum(score$score[score$team == "B"]), "points")
+  })
+  
+  # GAME CONFIGURE ACTIONS
+  observeEvent(input$configureGame, {
+    words <<- fetchData(input$url)
+    score <<- createTeams(words)
+    names <<- createNamelist(score)
+    words <<- createWordlist(words)
   })
 }
 
