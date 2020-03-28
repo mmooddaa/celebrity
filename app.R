@@ -3,7 +3,7 @@ library(shiny)
 words <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyoEdooMQN5RU2JwzChzDdfJrqwGGBmcWoVGhBAcsnFclSvDlDrQWNoH2XZBE0f3919QBGX5mU_Y8-/pub?output=csv",
                   stringsAsFactors = FALSE)
 
-# Create teams
+# Randomize teams
 names <- words$Player.Name
 names(names) <- names
 score <- data.frame(num = seq(1, length(names), 1),
