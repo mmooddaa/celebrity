@@ -35,7 +35,8 @@ createNamelist <- function(score) {
 
 createWordlist <- function (words) {
   # Create list of words
-  words <- unname(unlist(words[1:nrow(words),2:6]))
+  words$Player.Name <- NULL
+  words <- unname(unlist(words[1:nrow(words),2:ncol(words)]))
   words <- data.frame(id = 1:length(words),
                       words = words,
                       complete = 0,
