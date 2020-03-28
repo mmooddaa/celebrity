@@ -1,29 +1,39 @@
 library(shiny)
 
-words <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyoEdooMQN5RU2JwzChzDdfJrqwGGBmcWoVGhBAcsnFclSvDlDrQWNoH2XZBE0f3919QBGX5mU_Y8-/pub?output=csv",
-                  stringsAsFactors = FALSE)
+url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyoEdooMQN5RU2JwzChzDdfJrqwGGBmcWoVGhBAcsnFclSvDlDrQWNoH2XZBE0f3919QBGX5mU_Y8-/pub?output=csv"
 
-# Randomize teams
-# Set seed based on time
-set.seed(as.integer(paste0(strsplit(format(Sys.time(), "%X"), ":")[[1]], collapse = "")))
-
-names <- words$Player.Name
-names <- sample(names) # Select sample in random order
-score <- data.frame(num = seq(1, length(names), 1),
-                    player = names,
-                    team = as.character(NA),
-                    score = 0L,
-                    stringsAsFactors = FALSE)
-score$team <- ifelse(score$num %% 2 != 0 , "A", "B")
-
-# Create list of words
-words <- unname(unlist(words[1:nrow(words),2:6]))
-words <- data.frame(id = 1:length(words),
-                    words = words,
-                    complete = 0,
-                    stringsAsFactors = FALSE)
-
+# Declare global dfs and variables
+names <- character()
+score <- data.frame()
+words <- data.frame()
 currentWord <- 0
+
+# Function to create a new game based on inputed Google Form URL
+createGame <- function (url) {
+  words <- read.csv(url,stringsAsFactors = FALSE)
+  
+  # Randomize teams
+  # Set seed based on time
+  set.seed(as.integer(paste0(strsplit(format(Sys.time(), "%X"), ":")[[1]], collapse = "")))
+  
+  names <- words$Player.Name
+  names <- sample(names) # Select sample in random order
+  score <- data.frame(num = seq(1, length(names), 1),
+                      player = names,
+                      team = as.character(NA),
+                      score = 0L,
+                      stringsAsFactors = FALSE)
+  score$team <- ifelse(score$num %% 2 != 0 , "A", "B")
+  
+  # Create list of words
+  words <- unname(unlist(words[1:nrow(words),2:6]))
+  words <- data.frame(id = 1:length(words),
+                      words = words,
+                      complete = 0,
+                      stringsAsFactors = FALSE)
+  
+  currentWord <- 0
+}
 
 ui <- fluidPage(
   titlePanel("WELCOME TO MALLEN'S HOUSE OF FUN!"),
@@ -52,7 +62,12 @@ ui <- fluidPage(
              h4(htmlOutput("teamA_total")),
              tableOutput("teamA"),
              h4(htmlOutput("teamB_total")),
-             tableOutput("teamB")) # end tabPanel2
+             tableOutput("teamB")), # end tabPanel2
+    
+    # Fucntionality to add:
+    #   - Add Google Form URL to input new words and names
+    #   - Reset game (keep current word list, reset score)
+    tabPanel("Configure Game", "Test") # end tabPanel3 
   )
 )
 
