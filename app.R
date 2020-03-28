@@ -1,7 +1,5 @@
 library(shiny)
 
-url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vSyoEdooMQN5RU2JwzChzDdfJrqwGGBmcWoVGhBAcsnFclSvDlDrQWNoH2XZBE0f3919QBGX5mU_Y8-/pub?output=csv"
-
 # Declare global dfs and variables
 words <- data.frame()
 score <- data.frame()
@@ -82,7 +80,7 @@ ui <- fluidPage(
   )
 )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   # NEXT WORD ACTION
   observeEvent(input$nextWord, {
     # Register that the current word was succesfully guessed
@@ -139,6 +137,12 @@ server <- function(input, output) {
   output$teamB_total <- renderText({
     paste("Team B:", sum(score$score[score$team == "B"]), "points")
   })
+  
+  # Update Player List
+  observe({
+    updateSelectInput(session, "currentPlayer", label = "Player Select", choices = names)
+  })
+  
   
   # GAME CONFIGURE ACTIONS
   observeEvent(input$configureGame, {
