@@ -3,9 +3,12 @@ library(shiny)
 words <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyoEdooMQN5RU2JwzChzDdfJrqwGGBmcWoVGhBAcsnFclSvDlDrQWNoH2XZBE0f3919QBGX5mU_Y8-/pub?output=csv",
                   stringsAsFactors = FALSE)
 
-# Create teams
+# Randomize teams
+# Set seed based on time
+set.seed(as.integer(paste0(strsplit(format(Sys.time(), "%X"), ":")[[1]], collapse = "")))
+
 names <- words$Player.Name
-names(names) <- names
+names <- sample(names) # Select sample in random order
 score <- data.frame(num = seq(1, length(names), 1),
                     player = names,
                     team = as.character(NA),
