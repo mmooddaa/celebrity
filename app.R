@@ -16,7 +16,7 @@ createTeams <- function (words) {
   # Set seed based on time
   set.seed(as.integer(paste0(strsplit(format(Sys.time(), "%X"), ":")[[1]], collapse = "")))
   
-  names <- words$Player.Name
+  names <- words[ , grepl("(?i)player", colnames(words))]
   names <- sample(names) # Select sample in random order
   score <- data.frame(num = seq(1, length(names), 1),
                       player = names,
@@ -35,7 +35,7 @@ createNamelist <- function(score) {
 
 createWordlist <- function (words) {
   # Create list of words
-  words$Player.Name <- NULL
+  words[ , grepl("(?i)player", colnames(words))] <- NULL
   words <- unname(unlist(words[1:nrow(words),2:ncol(words)]))
   words <- data.frame(id = 1:length(words),
                       words = words,
