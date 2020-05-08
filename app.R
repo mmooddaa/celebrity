@@ -1,29 +1,47 @@
 library(shiny)
 
-words <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyoEdooMQN5RU2JwzChzDdfJrqwGGBmcWoVGhBAcsnFclSvDlDrQWNoH2XZBE0f3919QBGX5mU_Y8-/pub?output=csv",
-                  stringsAsFactors = FALSE)
-
-# Randomize teams
-# Set seed based on time
-set.seed(as.integer(paste0(strsplit(format(Sys.time(), "%X"), ":")[[1]], collapse = "")))
-
-names <- words$Player.Name
-names <- sample(names) # Select sample in random order
-score <- data.frame(num = seq(1, length(names), 1),
-                    player = names,
-                    team = as.character(NA),
-                    score = 0L,
-                    stringsAsFactors = FALSE)
-score$team <- ifelse(score$num %% 2 != 0 , "A", "B")
-
-# Create list of words
-words <- unname(unlist(words[1:nrow(words),2:6]))
-words <- data.frame(id = 1:length(words),
-                    words = words,
-                    complete = 0,
-                    stringsAsFactors = FALSE)
-
+# Declare global dfs and variables
+words <- data.frame()
+score <- data.frame()
+names <- character()
 currentWord <- 0
+
+# Functions to create a new game based on inputed Google Form URL
+fetchData <- function (url) {
+  words <- read.csv(url,stringsAsFactors = FALSE)
+}
+
+createTeams <- function (words) {
+  # Randomize teams
+  # Set seed based on time
+  set.seed(as.integer(paste0(strsplit(format(Sys.time(), "%X"), ":")[[1]], collapse = "")))
+  
+  names <- words[ , grepl("(?i)player", colnames(words))]
+  names <- sample(names) # Select sample in random order
+  score <- data.frame(num = seq(1, length(names), 1),
+                      player = names,
+                      team = as.character(NA),
+                      score = 0L,
+                      stringsAsFactors = FALSE)
+  score$team <- ifelse(score$num %% 2 != 0 , "A", "B")
+  return (score)
+}
+
+createNamelist <- function(score) {
+  names <- score$player
+  names(names) <- names
+  return (names)
+}
+
+createWordlist <- function (words) {
+  # Create list of words
+  words[ , grepl("(?i)player", colnames(words))] <- NULL
+  words <- unname(unlist(words[1:nrow(words),2:ncol(words)]))
+  words <- data.frame(id = 1:length(words),
+                      words = words,
+                      complete = 0,
+                      stringsAsFactors = FALSE)
+}
 
 ui <- fluidPage(
   titlePanel("WELCOME TO MALLEN'S HOUSE OF FUN!"),
@@ -52,11 +70,18 @@ ui <- fluidPage(
              h4(htmlOutput("teamA_total")),
              tableOutput("teamA"),
              h4(htmlOutput("teamB_total")),
-             tableOutput("teamB")) # end tabPanel2
+             tableOutput("teamB")), # end tabPanel2
+    
+    # Fucntionality to add:
+    #   - Add Google Form URL to input new words and names
+    #   - Reset game (keep current word list, reset score)
+    tabPanel("Configure Game",
+             textInput("url", "Enter Google Form URL (CSV):"),
+             actionButton("configureGame", "Submit")) # end tabPanel3 
   )
 )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   # NEXT WORD ACTION
   observeEvent(input$nextWord, {
     # Register that the current word was succesfully guessed
@@ -112,6 +137,20 @@ server <- function(input, output) {
   
   output$teamB_total <- renderText({
     paste("Team B:", sum(score$score[score$team == "B"]), "points")
+  })
+  
+  # Update Player List
+  observe({
+    updateSelectInput(session, "currentPlayer", label = "Player Select", choices = names)
+  })
+  
+  
+  # GAME CONFIGURE ACTIONS
+  observeEvent(input$configureGame, {
+    words <<- fetchData(input$url)
+    score <<- createTeams(words)
+    names <<- createNamelist(score)
+    words <<- createWordlist(words)
   })
 }
 
