@@ -12,4 +12,3 @@ Google Forms will automatically create a column for each question asked in the f
 ### How to Publish Google Form data as CSV
 
 From your Google Form page click into the "Responses" tab then the green Google Sheets icon in the top right. Once you are viewing the data in Google Sheets, go to File -> Publish to Web -> Linked. Make sure the correct sheet is selected then in the drop-down menu on the right select  "Comma-seperated values (.csv)." Copy the link that appears below.
-
